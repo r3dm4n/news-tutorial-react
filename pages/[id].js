@@ -5,15 +5,20 @@ import parser from 'react-html-parser'
 import Layout from '../components/Layout'
 import useImage from '../hooks/useImage'
 import { Container, Typography, Box } from '@material-ui/core'
+import Head from 'next/head'
 
 const ArticlePage = ({ article }) => {
-  const title = parser(article.title.rendered)
-  const content = parser(article.content.rendered)
-  const imageUrl = useImage(article.featured_media)
+  const title = !article ? null : parser(article.title.rendered)
+  const content = !article ? null : parser(article.content.rendered)
+  const imageUrl = !article ? null : useImage(article.featured_media)
 
   return (
     <Layout >
       <Container>
+        <Head>
+          <title>{title}</title>
+        </Head>
+
         <h1>{title}</h1>
         <img height='500' width='100%' style={{ objectFit: 'cover' }} loading='eager' src={imageUrl} />
         <Box padding={1}/>

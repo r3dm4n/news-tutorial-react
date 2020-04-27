@@ -4,6 +4,8 @@ import { searchPosts } from '../../lib/api'
 import Post from '../../components/Post'
 import Layout from '../../components/Layout'
 import ProgressBar from '../../components/ProgressBar'
+import Head from 'next/head'
+import { Container } from '@material-ui/core'
 
 const search = ({ query }) => {
   const [posts, setPosts] = useState([])
@@ -19,10 +21,16 @@ const search = ({ query }) => {
 
   return (
     <Layout title={query}>
-      {posts.length === 0
-        ? <ProgressBar />
-        : posts.map(post => <Post key={post.id} post={post} />)
-      }
+      <Head>
+        <title>{query}</title>
+      </Head>
+
+      <Container maxWidth='xl'>
+        {posts.length === 0
+          ? <ProgressBar />
+          : posts.map(post => <Post key={post.id} post={post} />)
+        }
+      </Container>
     </Layout>
   )
 }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import Head from 'next/head'
 import { fetchPosts } from '../lib/api'
 import Post from '../components/Post'
 import PropTypes from 'prop-types'
@@ -20,8 +21,11 @@ const Home = ({ posts }) => {
 
   return (
     <Layout title='Latest posts'>
-      <Container maxWidth='xl'>
+      <Head>
+        <title>News app</title>
+      </Head>
 
+      <Container maxWidth='xl'>
         {posts.map(post =>
           <Post key={post.id} post={post}/>
         )}
