@@ -3,45 +3,48 @@ import Head from 'next/head'
 import { fetchPosts } from '../lib/api'
 import Post from '../components/Post'
 import PropTypes from 'prop-types'
-import { Container } from '@material-ui/core'
 import Layout from '../components/Layout'
-import InfiniteScroll from 'react-infinite-scroll-component'
+import LoadMoreButton from '../components/LoadMoreButton'
+import MainFeaturedPost from '../components/MainFeaturedPost'
+import NewsLetter from '../components/NewsLetter'
+import CategoryName from '../components/CategoryName'
 
 const Home = ({ posts }) => {
-  const [morePosts, setMorePosts] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [morePosts, setMorePosts] = useState(posts)
   const [currentPage, setCurrentPage] = useState(2)
 
   const fetchMore = () => {
+    setLoading(true)
     setCurrentPage(currentPage + 1)
 
     fetchPosts(20, currentPage)
-      .then(newPosts => setMorePosts([...morePosts, ...newPosts]))
+      .then(newPosts => {
+        setLoading(false)
+        setMorePosts([...morePosts, ...newPosts])
+      })
       .catch(err => console.error(err))
   }
 
   return (
-    <Layout title='Latest posts'>
+    <Layout>
       <Head>
         <title>News app</title>
       </Head>
 
-      <Container maxWidth='xl'>
-        {posts.map(post =>
-          <Post key={post.id} post={post}/>
-        )}
+      {morePosts.map((post, i) =>
+        i === 0
+          ? <div>
+            <MainFeaturedPost post={post} />
+            <NewsLetter />
+            <CategoryName name='Latest posts' />
+          </div>
+          : <Post post={post} />
 
-        <div style={{ width: '100%' }}>
-          <InfiniteScroll
-            dataLength={morePosts.length}
-            next={fetchMore}
-            hasMore={true}
-            loader={<h4 className='center'>Loading more ...</h4>}
-          >
-            {morePosts.map(post => <Post key={post.id} post={post} />)}
-          </InfiniteScroll>
-        </div>
+      )}
 
-      </Container>
+      <LoadMoreButton loading={loading} handleMore={fetchMore} />
+
     </Layout>
   )
 }

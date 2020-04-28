@@ -5,7 +5,6 @@ import Post from '../../components/Post'
 import Layout from '../../components/Layout'
 import ProgressBar from '../../components/ProgressBar'
 import Head from 'next/head'
-import { Container } from '@material-ui/core'
 
 const search = ({ query }) => {
   const [posts, setPosts] = useState([])
@@ -25,18 +24,16 @@ const search = ({ query }) => {
         <title>{query}</title>
       </Head>
 
-      <Container maxWidth='xl'>
-        {posts.length === 0
-          ? <ProgressBar />
-          : posts.map(post => <Post key={post.id} post={post} />)
-        }
-      </Container>
+      {posts.length === 0
+        ? <ProgressBar />
+        : posts.map(post => <Post key={post.id} post={post} />)
+      }
+
     </Layout>
   )
 }
 
 search.getInitialProps = async (context) => {
-  console.log('context.query.id ', context.query.id)
   return { query: context.query.id }
 }
 

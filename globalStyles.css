@@ -11,7 +11,7 @@ img:hover {
     opacity: 0.8;
 }
 
-a {
+a { 
   color: inherit;
   text-decoration: none;
 }
@@ -29,4 +29,22 @@ a {
   align-items: center;
   justify-content: center;
   text-align: center;
+}
+
+.spacingTB {
+  margin-top: 32px;
+  margin-bottom: 32px;
+}
+
+.spacingLR {
+  margin-left: 32px;
+  margin-right: 32px;
+}
+
+.spacing {
+  margin: 32px
+}
+
+.padding {
+  padding: 32;
 }

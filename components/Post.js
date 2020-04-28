@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import Link from 'next/link'
 import { Grid, Hidden, Typography, makeStyles } from '@material-ui/core'
 import parser from 'react-html-parser'
 import useImage from '../hooks/useImage'
@@ -17,7 +16,6 @@ const styles = makeStyles((theme) => ({
       height: 100,
       width: 100
     }
-
   },
 
   title: {
@@ -46,20 +44,18 @@ const Post = ({ post }) => {
   const postDate = moment(new Date(post.date)).format('L')
 
   return (
-
-    <Grid container spacing={4} justify='space-evenly'>
-
+    <Grid container spacing={4} justify='space-between'>
       <Grid item xs={8} md={4}>
         <ArticleLink slug={post.slug}>
           <Typography variant='h5' component='h1' className={classes.title}>
             {title}
           </Typography>
-          <Typography variant='caption'> {postDate} | {author} </Typography>
+          <Typography variant='caption'> {postDate} {author ? '|' + author : null} </Typography>
         </ArticleLink>
       </Grid>
 
       <Hidden smDown>
-        <Grid item md={4}>
+        <Grid item md={6}>
           <ArticleLink slug={post.slug}>
             <Typography variant='subtitle1' component='h2' color='textSecondary' className={classes.excerpt}>
               {excerpt}
@@ -68,7 +64,7 @@ const Post = ({ post }) => {
         </Grid>
       </Hidden>
 
-      <Grid item xs='auto' md={4}>
+      <Grid item xs='auto' md={2}>
         <ArticleLink slug={post.slug}>
           <img width='200' height='200' src={imageUrl} loading='lazy' className={classes.img}/>
         </ArticleLink>

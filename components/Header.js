@@ -1,132 +1,128 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import Link from 'next/link'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
-import IconButton from '@material-ui/core/IconButton'
-import Typography from '@material-ui/core/Typography'
-import InputBase from '@material-ui/core/InputBase'
-import { fade, makeStyles } from '@material-ui/core/styles'
-import MenuIcon from '@material-ui/icons/Menu'
-import SearchIcon from '@material-ui/icons/Search'
 import { useRouter } from 'next/router'
+import { AppBar, Typography, Grid, Hidden, IconButton, Toolbar, Drawer, ListItem, ListItemText } from '@material-ui/core'
+import styles from '../themes/styles'
+import useCategories from '../hooks/useCategories'
+import SearchBar from './Search/SearchBar'
+import SearchDialogIcon from './Search/SearchDialogIcon'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1
-  },
-  menuButton: {
-    marginRight: theme.spacing(2)
-  },
-  title: {
-    flexGrow: 1,
-    display: 'none',
-    [theme.breakpoints.up('sm')]: {
-      display: 'block'
-    }
-  },
-  search: {
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
-    '&:hover': {
-      backgroundColor: fade(theme.palette.common.white, 0.25)
-    },
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(1),
-      width: 'auto'
-    }
-  },
-  searchIcon: {
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  inputRoot: {
-    color: 'inherit'
-  },
-  inputInput: {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      width: '12ch',
-      '&:focus': {
-        width: '20ch'
-      }
-    }
-  }
-}))
+import CloseIcon from '@material-ui/icons/Close'
+import BackIcon from '@material-ui/icons/ArrowBack'
+import MenuIcon from '@material-ui/icons/Menu'
 
 const Header = () => {
-  const classes = useStyles()
+  const classes = styles()
+  const categories = useCategories()
   const router = useRouter()
 
-  const [query, setQuery] = useState('')
+  const [isHomePage, setIsHomePage] = useState(false)
+  const [isDrawerOpen, setDrawerOpen] = useState(false)
+  const toggleDrawer = () => setDrawerOpen(!isDrawerOpen)
 
-  const handleChange = (e) => {
+  React.useEffect(() => {
+    console.log('using effect')
+    setIsHomePage(router.pathname === '/')
+  }, [router.pathname])
+
+  const onBackPressed = e => {
     e.preventDefault()
-    setQuery(e.target.value)
-  }
 
-  const handleSearch = query => e => {
-    const emptySearch = Object.keys(query).length === 0
-
-    if (e.key === 'Enter') {
-      if (emptySearch) {
-        return
-      }
-
-      router
-        .push('/search/', `/search/${e.target.value}`)
-        .then(() => setQuery(''))
-    }
+    history.length > 2 ? router.back() : router.push('/')
   }
 
   return (
-    <div className={classes.root}>
-      <AppBar position='sticky'>
-        <Toolbar>
-          <IconButton
-            edge="start"
-            className={classes.menuButton}
-            color="inherit"
-            aria-label="open drawer"
-          >
-            <MenuIcon />
+    <AppBar position='sticky' elevation={0}>
+      <Toolbar component='nav' style={{
+        justifyContent: 'space-between',
+        overflowX: 'auto'
+      }}>
+        <Hidden mdUp>
+          <IconButton color='inherit' onClick={isHomePage ? toggleDrawer : onBackPressed}>
+            {isHomePage ? <MenuIcon /> : <BackIcon />}
           </IconButton>
-          <Typography className={classes.title} variant="h6" noWrap>
-            <Link href='/'>
-              <a>News app</a>
-            </Link>
-          </Typography>
-          <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <SearchIcon />
-            </div>
-            <InputBase
-              placeholder="Search…"
-              value={query}
-              onChange={handleChange}
-              onKeyPress={handleSearch(query)}
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput
-              }}
-              inputProps={{ 'aria-label': 'search' }}
-            />
-          </div>
-        </Toolbar>
-      </AppBar>
-    </div>
+
+          <Drawer
+            variant="temporary"
+            anchor="top"
+            open={isDrawerOpen}
+            onClose={toggleDrawer}
+            classes={{
+              paper: classes.paper
+            }}
+          >
+            <AppBarLinks categories={categories} toggleDrawer={toggleDrawer}/>
+          </Drawer>
+        </Hidden>
+
+        <Link href='/' as={'/'}>
+          <a className={classes.appBarTitle}>
+            <Typography className={classes.appTitle}>News</Typography>
+          </a>
+        </Link>
+
+        <SearchDialogIcon />
+        <SearchBar />
+      </Toolbar>
+
+      <Hidden smDown>
+        <AppBarLinks categories={categories} />
+      </Hidden>
+
+    </AppBar>
   )
+}
+
+const AppBarLinks = ({ categories, toggleDrawer }) => {
+  const classes = styles()
+  const router = useRouter()
+
+  const handleClick = categoryName => e => {
+    e.preventDefault()
+    router.push(`/search/${categoryName}`)
+  }
+
+  return (
+
+    <div>
+      <Hidden mdUp>
+        <AppBar position='sticky' className={classes.appBar}>
+          <Toolbar component='nav'>
+            <IconButton edge="start" color="inherit" onClick={toggleDrawer} aria-label="close">
+              <CloseIcon />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+      </Hidden>
+
+      <Grid container spacing={1} alignItems='center' justify='center'>
+        {(categories || []).map((category) =>
+          <Grid item key={category.id} className={classes.appBarLink}>
+            <ListItem
+              key={category.id}
+              button
+              color='inherit'
+              className={classes.link}
+              onClick={handleClick(category.slug)}
+            >
+              <ListItemText>
+                <a href={category.slug}> {category.name}</a>
+              </ListItemText>
+            </ListItem>
+
+          </Grid>
+        )}
+      </Grid>
+
+    </div>
+
+  )
+}
+
+AppBarLinks.propTypes = {
+  categories: PropTypes.array.isRequired,
+  toggleDrawer: PropTypes.func
 }
 
 export default Header
